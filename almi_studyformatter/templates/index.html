@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALMI StudyFormatter.Ai | AI Study Engine & PDF Studio</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #060913;
+            --bg-card: rgba(15, 23, 42, 0.65);
+            --bg-input: rgba(8, 14, 28, 0.75);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.12);
+            --glass-glow: rgba(59, 130, 246, 0.15);
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --accent-tertiary: #ec4899;
+            --shadow-color: rgba(0, 0, 0, 0.6);
+            --orb-opacity: 0.25;
+            --code-bg: rgba(15, 23, 42, 0.8);
+        }
+
+        [data-theme="light"] {
+            --bg-main: #f1f5f9;
+            --bg-card: rgba(255, 255, 255, 0.75);
+            --bg-input: rgba(248, 250, 252, 0.9);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --glass-glow: rgba(59, 130, 246, 0.08);
+            --accent-primary: #2563eb;
+            --accent-secondary: #7c3aed;
+            --accent-tertiary: #db2777;
+            --shadow-color: rgba(148, 163, 184, 0.25);
+            --orb-opacity: 0.15;
+            --code-bg: rgba(226, 232, 240, 0.8);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.5rem 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .mountain-bg {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 55vh;
+            z-index: -2;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -2;
+            pointer-events: none;
+        }
+        .orb-1 {
+            top: 5%;
+            left: 10%;
+            width: 400px;
+            height: 400px;
+            background: var(--accent-primary);
+            opacity: var(--orb-opacity);
+            animation: floatGlow 8s infinite alternate ease-in-out;
+        }
+        .orb-2 {
+            bottom: 15%;
+            right: 10%;
+            width: 450px;
+            height: 450px;
+            background: var(--accent-secondary);
+            opacity: var(--orb-opacity);
+            animation: floatGlow 10s infinite alternate-reverse ease-in-out;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 40px) scale(1.15); }
+        }
+
+        header {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto 1.5rem auto;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            padding: 0.85rem 1.5rem;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            z-index: 10;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: -0.03em;
+        }
+        .logo-icon {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 8px 11px;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+            font-size: 1rem;
+        }
+        .logo-text span {
+            color: var(--accent-primary);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .auth-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .auth-btn.primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .user-dashboard-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            padding: 4px 6px 4px 12px;
+            border-radius: 30px;
+        }
+
+        .coin-counter {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #f59e0b;
+        }
+
+        .btn-topup {
+            background: #f59e0b;
+            color: #000;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .container-box {
+            max-width: 720px;
+            width: 100%;
+            margin: 0 auto;
+            background: var(--bg-card);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--border-color);
+            border-radius: 28px;
+            box-shadow: 0 30px 60px -15px var(--shadow-color);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .top-gradient-bar {
+            height: 5px;
+            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+        }
+
+        .content-body {
+            padding: 2.25rem;
+        }
+
+        .header-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.65rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .badge-live {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1.75rem;
+        }
+        p.subtitle code {
+            background: var(--code-bg);
+            color: var(--accent-primary);
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        .form-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+        .char-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 0.85rem 1rem;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            outline: none;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px var(--glass-glow);
+        }
+        textarea {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .cost-note {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px dashed rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+            padding: 0.6rem 1rem;
+            margin-bottom: 1.25rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .cost-note span strong {
+            color: #f59e0b;
+        }
+
+        .glow-button {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            max-width: 900px;
+            width: 90%;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: 0 25px 50px -12px var(--shadow-color);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: var(--text-main);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .modal-header h3 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        .modal-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .price-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+        .price-card.featured {
+            border: 2px solid var(--accent-primary);
+        }
+
+        .popular-tag {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+
+        .plan-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .plan-price { font-size: 2rem; font-weight: 800; margin-bottom: 1rem; }
+        .plan-price span { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+
+        .plan-features { list-style: none; margin-bottom: 1.5rem; }
+        .plan-features li { font-size: 0.825rem; color: var(--text-muted); margin-bottom: 0.6rem; }
+        .plan-features li::before { content: "✓ "; color: #10b981; font-weight: bold; }
+
+        .plan-btn {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .price-card.featured .plan-btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+        }
+
+        .auth-container { max-width: 400px; }
+
+        footer {
+            max-width: 720px;
+            width: 100%;
+            margin: 1.5rem auto 0 auto;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <svg class="mountain-bg" viewBox="0 0 1440 600" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <defs>
+            <linearGradient id="mGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#0f172a" stop-opacity="0.85"/>
+            </linearGradient>
+            <linearGradient id="mGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#1e1b4b" stop-opacity="0.9"/>
+            </linearGradient>
+        </defs>
+        <path d="M0 350L120 320C240 290 480 230 720 250C960 270 1200 370 1320 420L1440 470V600H0V350Z" fill="url(#mGrad1)"/>
+        <path d="M0 420L180 380C360 340 720 240 960 300C1200 360 1380 440 1430 465L1440 470V600H0V420Z" fill="url(#mGrad2)"/>
+    </svg>
+
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">⚡</div>
+            <div class="logo-text">ALMI StudyFormatter<span>.Ai</span></div>
+        </div>
+
+        <div class="nav-actions">
+            <button class="theme-toggle" id="themeBtn" title="Toggle Mode">🌙</button>
+
+            <div class="user-dashboard-badge">
+                <div class="coin-counter">
+                    <span>🪙</span>
+                    <span id="coinBalance">{{ user.coins }}</span> Coins
+                </div>
+                <button class="btn-topup" onclick="openPricingModal()">Upgrade</button>
+            </div>
+
+            <button class="auth-btn" onclick="openAuthModal('signin')">Sign In</button>
+            <button class="auth-btn primary" onclick="openAuthModal('signup')">Sign Up</button>
+        </div>
+    </header>
+
+    <main class="container-box">
+        <div class="top-gradient-bar"></div>
+        
+        <div class="content-body">
+            <div class="header-title-row">
+                <h2>Transform Notes to PDF Studio</h2>
+                <span class="badge-live">● AI Engine v2.0</span>
+            </div>
+            
+            <p class="subtitle">
+                Paste raw notes below. Use <code># Title</code> for headers, <code>Note: text</code> for clean highlighted callouts.
+            </p>
+
+            <form action="/generate-pdf" method="POST" id="pdfForm" onsubmit="handlePdfSubmit(event)">
+                <div class="form-group">
+                    <label for="title">Document Title</label>
+                    <input type="text" id="title" name="title" placeholder="e.g., Quantum Physics - Chapter 3 Review" required>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label for="content">Raw Study Notes</label>
+                        <span id="charCount" class="char-count">0 chars</span>
+                    </div>
+                    <textarea id="content" name="content" rows="8" placeholder="# Quantum Mechanics Basics
+Enter notes or lecture transcripts here...
+
+Note: Energy levels are quantized!" required oninput="updateCount(this)"></textarea>
+                </div>
+
+                <div class="cost-note">
+                    <span>Deduction cost per document: <strong>10 Coins</strong></span>
+                    <span>Current Wallet Balance: <strong id="subCoinBalance">{{ user.coins }} Coins</strong></span>
+                </div>
+
+                <button type="submit" id="download-pdf-btn" class="glow-button">
+                    <span id="btnText">⚡ Formatter & Export PDF Document</span>
+                    <div id="spinner" class="spinner"></div>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Pricing Modal -->
+    <div class="modal-overlay" id="pricingModal">
+        <div class="modal-card">
+            <button class="close-modal" onclick="closePricingModal()">✕</button>
+            <div class="modal-header">
+                <h3>Upgrade Your Study Engine</h3>
+                <p>Select a dynamic plan designed for high-speed academic output.</p>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <div>
+                        <div class="plan-title">Standard</div>
+                        <div class="plan-price">$4.99 <span>/mo</span></div>
+                        <ul class="plan-features">
+                            <li>150 Coins added monthly</li>
+                            <li>Standard PDF rendering speed</li>
+                            <li>Basic custom highlights</li>
+                        </ul>
+                    </div>
+                    <button class="plan-btn" onclick="subscribe('Standard')">Get Standard</button>
+                </div>
+
+                <div class="price-card featured">
+                    <div class="popular-tag">Most Popular</div>
+                    <div>
+                        <div class="plan-title">Premium</div>
+                        <div class="plan-price">$9.99 <span>/mo</span></div>
+                        <ul class="plan-features">
+                            <li>500 Coins added monthly</li>
+                            <li>Ultra-fast Turbo Render Engine</li>
+                            <li>Custom Header Logos & Themes</li>
+                        </ul>
+                    </div>
+                    <button class="plan-btn" onclick="subscribe('Premium')">Get Premium</button>
+                </div>
+
+                <div class="price-card">
+                    <div>
+                        <div class="plan-title">Virtual School</div>
+                        <div class="plan-price">$19.99 <span>/mo</span></div>
+                        <ul class="plan-features">
+                            <li>Unlimited Coins & Generation</li>
+                            <li>Multi-user Classroom workspace</li>
+                            <li>Auto Quiz & Flashcard generation</li>
+                        </ul>
+                    </div>
+                    <button class="plan-btn" onclick="subscribe('Virtual School')">Get Virtual School</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-card auth-container">
+            <button class="close-modal" onclick="closeAuthModal()">✕</button>
+            <div class="modal-header">
+                <h3 id="authTitle">Sign In</h3>
+                <p id="authSubtitle">Access your saved documents and wallet</p>
+            </div>
+            
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="text" id="authEmail" value="admin@almi.ai" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="authPassword" value="adminpassword123" style="width: 100%; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 14px; padding: 0.85rem 1rem; color: var(--text-main);" required>
+                </div>
+                <button type="submit" class="glow-button" style="margin-top: 1rem;" id="authSubmitBtn">
+                    Sign In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 ALMI StudyFormatter.Ai • Next-Generation Student Productivity Suite</p>
+    </footer>
+
+    <script>
+        let coinBalance = parseInt('{{ user.coins }}') || 30;
+        const generationCost = 10;
+
+        const themeBtn = document.getElementById('themeBtn');
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            themeBtn.textContent = newTheme === 'light' ? '☀️' : '🌙';
+        });
+
+        function updateCount(el) {
+            document.getElementById('charCount').textContent = `${el.value.length} chars`;
+        }
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    coinBalance = data.coins;
+                    updateCoinDisplay();
+                    closeAuthModal();
+                    alert(`Signed in successfully as ${email}!`);
+                } else {
+                    alert(data.message || "Invalid credentials.");
+                }
+            } catch (err) {
+                alert("Login request failed.");
+            }
+        }
+
+        async function handlePdfSubmit(e) {
+            e.preventDefault();
+
+            if (coinBalance < generationCost) {
+                alert("Insufficient coins! Please upgrade your plan.");
+                openPricingModal();
+                return;
+            }
+
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('spinner');
+            const submitBtn = document.getElementById('download-pdf-btn');
+
+            btnText.textContent = "Formatting Document...";
+            spinner.style.display = 'block';
+            submitBtn.style.pointerEvents = 'none';
+
+            try {
+                const titleVal = document.getElementById('title').value;
+                const contentVal = document.getElementById('content').value;
+
+                const response = await fetch('/generate-pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'title': titleVal,
+                        'content': contentVal
+                    })
+                });
+
+                if (!response.ok) {
+                    let errorMessage = "Failed to generate PDF";
+                    try {
+                        const errData = await response.json();
+                        errorMessage = errData.error || errorMessage;
+                    } catch (e) {
+                        errorMessage = await response.text();
+                    }
+                    alert(errorMessage);
+                    return;
+                }
+
+                // CRITICAL: Must read as a blob, NOT text!
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                
+                // Create a temporary link to trigger the file download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = (titleVal.trim() || 'Study_Notes') + '.pdf'; // Ensure it saves as .pdf
+                document.body.appendChild(a);
+                a.click();
+                
+                window.URL.revokeObjectURL(url);
+                a.remove();
+
+                // Deduct coins after successful generation
+                coinBalance -= generationCost;
+                updateCoinDisplay();
+
+            } catch (error) {
+                console.error("Download error:", error);
+                alert("Network error during file generation.");
+            } finally {
+                btnText.textContent = "⚡ Formatter & Export PDF Document";
+                spinner.style.display = 'none';
+                submitBtn.style.pointerEvents = 'auto';
+            }
+        }
+
+        function updateCoinDisplay() {
+            document.getElementById('coinBalance').textContent = coinBalance;
+            document.getElementById('subCoinBalance').textContent = `${coinBalance} Coins`;
+        }
+
+        function openPricingModal() { document.getElementById('pricingModal').classList.add('active'); }
+        function closePricingModal() { document.getElementById('pricingModal').classList.remove('active'); }
+
+        function openAuthModal(mode) {
+            document.getElementById('authModal').classList.add('active');
+        }
+        function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
+
+        function subscribe(plan) {
+            alert(`Redirecting to checkout for ${plan} plan!`);
+            closePricingModal();
+        }
+    </script>
+</body>
+</html>
