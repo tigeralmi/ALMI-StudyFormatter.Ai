@@ -1,0 +1,1 @@
+web: gunicorn ALMI StudyFormatter.AI:app
